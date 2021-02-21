@@ -7,7 +7,78 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+
+    @all_ratings = Movie.all_ratings
+#    @filtered_ratings=params[:ratings]
+    
+#    @Keys=( params[:ratings].nil? ? [] : @filtered_ratings.keys)
+ #   @movies=@filtered_ratings==[] ? Movie.all: Movie.with_ratings(@Keys)
+    
+ #   @ratings_to_show=@Keys
+    
+    @flag=0
+    @flag2=0
+  #  print('*-------')
+  #  print(params[:utf8])
+  #  print('-------')
+
+    if params[:ratings] 
+      @filtered_ratings = params[:ratings]
+      session[:ratings] = @filtered_ratings
+    elsif params[:utf8]
+      @filtered_ratings = nil
+      session[:sort_by] =nil
+    elsif session[:ratings] 
+      flag=1
+      @filtered_ratings = session[:ratings]
+    else
+      @filtered_ratings = nil
+    end
+
+    if params[:sort_by]
+      @sort_order = params[:sort_by]
+      session[:sort_by] = @sort_order
+    elsif session[:sort_by]
+      flag=1
+      @sort_order = session[:sort_by]
+    else
+      @sort_order = nil
+    end 
+    if flag==1
+      redirect_to movies_path :sort_by => @sort_order, :ratings => @filtered_ratings,:utf8 => params[:utf8]
+    end
+    
+    @ratings_to_show=[]
+    if @filtered_ratings
+      @ratings_to_show=@filtered_ratings.keys
+    end
+    if !@filtered_ratings
+      @filtered_ratings = @all_ratings.each_with_object('1').to_h
+    
+    end    
+    
+    if @sort_order and @filtered_ratings
+      @movies = Movie.fliter_ratings_order(@filtered_ratings.keys,@sort_order)
+   #   @ratings_to_show=@filtered_ratings.keys
+    elsif @filtered_ratings
+      @movies = Movie.fliter_ratings(@filtered_ratings.keys)
+  #    @ratings_to_show=@filtered_ratings.keys
+    elsif @sort_order
+      @movies = Movie.all.order(@sort_order)
+    else
+      @movies = Movie.all
+    end   
+    
+  #   if(params[:sort_by]=='title')
+   #   @movies=Movie.order:title
+#    end
+ #   if(params[:sort_by]=='date')
+  #    @movies=Movie.order:release_date
+   # end
+    
+  
+   
+   
   end
 
   def new
