@@ -21,13 +21,15 @@ class MoviesController < ApplicationController
   #  print('*-------')
   #  print(params[:utf8])
   #  print('-------')
-
+    
+    
     if params[:ratings] 
       @filtered_ratings = params[:ratings]
       session[:ratings] = @filtered_ratings
-    elsif params[:utf8]
+    elsif params[:click_button]
       @filtered_ratings = nil
       session[:sort_by] =nil
+      session[:ratings] =nil
     elsif session[:ratings] 
       flag=1
       @filtered_ratings = session[:ratings]
@@ -45,7 +47,7 @@ class MoviesController < ApplicationController
       @sort_order = nil
     end 
     if flag==1
-      redirect_to movies_path :sort_by => @sort_order, :ratings => @filtered_ratings,:utf8 => params[:utf8]
+      redirect_to movies_path :sort_by => @sort_order, :ratings => @filtered_ratings,:click_button => params[:click_button]
     end
     
     @ratings_to_show=[]
