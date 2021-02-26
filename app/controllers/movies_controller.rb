@@ -7,7 +7,9 @@ class MoviesController < ApplicationController
   end
 
   def index
-
+  if request.env['PATH_INFO']== '/'
+    session.clear
+  end
     @all_ratings = Movie.all_ratings
 #    @filtered_ratings=params[:ratings]
     
@@ -28,7 +30,9 @@ class MoviesController < ApplicationController
       session[:ratings] = @filtered_ratings
     elsif params[:click_button]
       @filtered_ratings = nil
+      #If user selects no filter then everything should get cleared
       session[:sort_by] =nil
+    
       session[:ratings] =nil
     elsif session[:ratings] 
       flag=1
@@ -47,17 +51,18 @@ class MoviesController < ApplicationController
       @sort_order = nil
     end 
     if flag==1
-      redirect_to movies_path :sort_by => @sort_order, :ratings => @filtered_ratings,:click_button => params[:click_button]
+      redirect_to movies_path :sort_by => @sort_order, :ratings => @filtered_ratings
     end
     
     @ratings_to_show=[]
     if @filtered_ratings
       @ratings_to_show=@filtered_ratings.keys
     end
-    if !@filtered_ratings
-      @filtered_ratings = @all_ratings.each_with_object('1').to_h
+    # I removed this part of code which used to put back filters once sort is added 
+    # if !@filtered_ratings
+    #   @filtered_ratings = @all_ratings.each_with_object('1').to_h
     
-    end    
+    # end    
     
     if @sort_order and @filtered_ratings
       @movies = Movie.fliter_ratings_order(@filtered_ratings.keys,@sort_order)
